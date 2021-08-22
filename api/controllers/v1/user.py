@@ -52,6 +52,14 @@ class User(Resource):
 
   def post(self):
     try:
+      path = request.path
+      if path == '/login/':
+        print("===== LOGIN =====")
+        return
+      elif path == '/register/':
+        print("===== REGISTER =====")
+        return
+      
       request_body = request.get_json()
       new_user = self.user_service.create_new_user(request_body)
       response = {
