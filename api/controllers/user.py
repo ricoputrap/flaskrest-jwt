@@ -21,14 +21,13 @@ class User(Resource):
       user = self.user_service.get_user_by_id(public_id)
 
       if not user:
-        # abort(404, message="User not found")
         return make_response(jsonify({
           'errors':[
             {
               "status": 404,
-              "source": { "pointer": "/users/<user_id>" },
+              "source": { "pointer": "/users/<public_id>" },
               "title": "User not found",
-              "detail": "User with user_id = %s is not found" % (user_id)
+              "detail": "User with public_id = %s is not found" % (public_id)
             }
           ]
         }), '404')
