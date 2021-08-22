@@ -11,37 +11,61 @@ class User(Resource):
   user_service = UserService()
 
   def get(self, public_id = None):
-    if public_id == None:
-      users = self.user_service.get_all_users()
-      response = {
-        'data': user_list_schema.dump(users)
-      }
-      return response
-    else:
-      user = self.user_service.get_user_by_id(public_id)
+    try:
+      if public_id == None:
+        users = self.user_service.get_all_users()
+        response = {
+          'data': user_list_schema.dump(users)
+        }
+        return response
+      else:
+        user = self.user_service.get_user_by_id(public_id)
 
-      if not user:
-        return make_response(jsonify({
-          'errors':[
-            {
-              "status": 404,
-              "source": { "pointer": "/users/<public_id>" },
-              "title": "User not found",
-              "detail": "User with public_id = %s is not found" % (public_id)
-            }
-          ]
-        }), '404')
+        if not user:
+          return make_response(jsonify({
+            'errors': [
+              {
+                "status": 404,
+                "source": { "pointer": "/users/<public_id>", "method": "GET" },
+                "title": "User not found",
+                "detail": "User with public_id = %s is not found" % (public_id)
+              }
+            ]
+          }), 404)
 
-      response = {
-        'data': user_schema.dump(user)
-      }
-      return response
-    
+        response = {
+          'data': user_schema.dump(user)
+        }
+        return response
+    except Exception as e:
+      return make_response(jsonify({
+        'errors': [
+          {
+            "status": 500,
+            "source": { "pointer": "/users/", "method": "GET" },
+            "title": "Internal Server Error",
+            "detail": str(e)
+          }
+        ]
+      }), 500)
+
   def post(self):
-    new_user_data = request.get_json()
-    new_user = self.user_service.create_new_user(new_user_data)
-    response = {
-      "message": "New user is successfully created!",
-      "data": user_schema.dump(new_user) 
-    }
-    return response
+    try:
+      new_user_data = request.get_json()
+      new_user = self.user_service.create_new_user(new_user_data)
+      response = {
+        "message": "New user is successfully created!",
+        "data": user_schema.dump(new_user) 
+      }
+      return response
+    except Exception as e:
+      return make_response(jsonify({
+        'errors': [
+          {
+            "status": 500,
+            "source": { "pointer": "/users/", "method": "POST" },
+            "title": "Internal Server Error",
+            "detail": str(e)
+          }
+        ]
+      }), 500)
