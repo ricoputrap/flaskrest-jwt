@@ -54,10 +54,30 @@ class User(Resource):
     try:
       path = request.path
       if path == '/login/':
-        print("===== LOGIN =====")
-        return
+        result = self.user_service.login(request.get_json())
+        if not result:
+          return make_response(jsonify({
+            'errors': [
+              {
+                "status": 401,
+                "source": { "pointer": "/login/", "method": "POST" },
+                "title": "Unauthorized",
+                "detail": "Wrong username or password."
+              }
+            ]
+          }), 404)
+        
+        response = {
+          "message": "Login success!",
+          "data": {
+            "user": user_schema.dump(result['user']),
+            "token": result['token']
+          }
+        }
+
+        return response
       elif path == '/register/':
-        print("===== REGISTER =====")
+        # print("===== REGISTER =====")
         return
       
       request_body = request.get_json()

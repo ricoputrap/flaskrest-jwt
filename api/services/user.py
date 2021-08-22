@@ -1,7 +1,13 @@
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from api.models.user import UserModel
 from api.utils import db
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
+import jwt
+import datetime
 
 class UserService:
 
@@ -48,3 +54,22 @@ class UserService:
     db.session.delete(user)
     db.session.commit()
     return True
+  
+  def login(self, request_body):
+    user = UserModel.query.filter_by(username=request_body['username']).first()
+    if not user:
+      return None
+    
+    if check_password_hash(user.password, request_body['password']):
+      payload = {
+        'public_id': user.public_id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+      }
+      secret_key = os.getenv('SECRET_KEY')
+      token = jwt.encode(payload, secret_key)
+      return {
+        "token": token,
+        "user": user
+      }
+    
+    return None
