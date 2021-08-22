@@ -51,8 +51,8 @@ class User(Resource):
 
   def post(self):
     try:
-      new_user_data = request.get_json()
-      new_user = self.user_service.create_new_user(new_user_data)
+      request_body = request.get_json()
+      new_user = self.user_service.create_new_user(request_body)
       response = {
         "message": "New user is successfully created!",
         "data": user_schema.dump(new_user) 
@@ -64,6 +64,39 @@ class User(Resource):
           {
             "status": 500,
             "source": { "pointer": "/users/", "method": "POST" },
+            "title": "Internal Server Error",
+            "detail": str(e)
+          }
+        ]
+      }), 500)
+  
+  def put(self, public_id):
+    try:
+      request_body = request.get_json()
+      updated_user = self.user_service.update_user(public_id, request_body)
+
+      if not updated_user:
+        return make_response(jsonify({
+            'errors': [
+              {
+                "status": 404,
+                "source": { "pointer": "/users/<public_id>", "method": "PUT" },
+                "title": "User not found",
+                "detail": "User with public_id = %s is not found" % (public_id)
+              }
+            ]
+          }), 404)
+      
+      response = {
+        'data': user_schema.dump(updated_user)
+      }
+      return response
+    except Exception as e:
+      return make_response(jsonify({
+        'errors': [
+          {
+            "status": 500,
+            "source": { "pointer": "/users/", "method": "PUT" },
             "title": "Internal Server Error",
             "detail": str(e)
           }

@@ -20,3 +20,20 @@ class UserService:
     db.session.add(new_user)
     db.session.commit()
     return new_user
+  
+  def update_user(self, public_id, request_body):
+    user = UserModel.query.filter_by(public_id=public_id).first()
+    if not user:
+      return None
+
+    if "username" in request_body:
+      user.username = request_body['username']
+    if "fullname" in request_body:
+      user.fullname = request_body['fullname']
+    if "password" in request_body:
+      hashed_password = generate_password_hash(request_body['password'], method='sha256')
+      user.password = hashed_password
+    
+    db.session.commit()
+
+    return user
