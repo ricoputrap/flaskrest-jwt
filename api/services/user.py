@@ -61,9 +61,12 @@ class UserService:
       return None
     
     if check_password_hash(user.password, request_body['password']):
+      '''
+      @TODO implement function to extend the token expiration date automatically if the users are still logged-in at the last second of the exp date
+      '''
       payload = {
         'public_id': user.public_id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=30)
       }
       secret_key = os.getenv('SECRET_KEY')
       token = jwt.encode(payload, secret_key)
