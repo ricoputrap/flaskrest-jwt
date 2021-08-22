@@ -30,6 +30,8 @@ class UserService:
       user.username = request_body['username']
     if "fullname" in request_body:
       user.fullname = request_body['fullname']
+    if "is_admin" in request_body:
+      user.is_admin = request_body['is_admin']
     if "password" in request_body:
       hashed_password = generate_password_hash(request_body['password'], method='sha256')
       user.password = hashed_password
@@ -37,3 +39,12 @@ class UserService:
     db.session.commit()
 
     return user
+
+  def delete_user(self, public_id):
+    user = UserModel.query.filter_by(public_id=public_id).first()
+    if not user:
+      return None
+    
+    db.session.delete(user)
+    db.session.commit()
+    return True
