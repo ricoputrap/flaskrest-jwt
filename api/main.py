@@ -4,7 +4,7 @@ load_dotenv()
 
 from flask import Flask
 from flask_restful import Api
-from api.controllers.user import User
+from api.controllers.v1.user import User
 
 def init_app():
   app = Flask(__name__)
