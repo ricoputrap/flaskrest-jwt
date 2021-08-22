@@ -1,4 +1,4 @@
-from flask import jsonify, make_response
+from flask import jsonify, make_response, request
 from flask_restful import Resource, abort
 from api.services.user import UserService
 from api.serializers.user import UserSchema
@@ -10,15 +10,15 @@ class User(Resource):
 
   user_service = UserService()
 
-  def get(self, user_id = None):
-    if user_id == None:
+  def get(self, public_id = None):
+    if public_id == None:
       users = self.user_service.get_all_users()
       response = {
         'data': user_list_schema.dump(users)
       }
       return response
     else:
-      user = self.user_service.get_user_by_id(user_id)
+      user = self.user_service.get_user_by_id(public_id)
 
       if not user:
         # abort(404, message="User not found")
@@ -34,10 +34,15 @@ class User(Resource):
         }), '404')
 
       response = {
-        'data': user_schema(user)
+        'data': user_schema.dump(user)
       }
       return response
     
-    
-    
-    
+  def post(self):
+    new_user_data = request.get_json()
+    new_user = self.user_service.create_new_user(new_user_data)
+    response = {
+      "message": "New user is successfully created!",
+      "data": user_schema.dump(new_user) 
+    }
+    return response

@@ -18,6 +18,6 @@ def init_app():
   ma.init_app(app)
   migrate.init_app(app, db)
 
-  api.add_resource(User, "/users/", "/users/<user_id>")
+  api.add_resource(User, "/users/", "/users/<public_id>")
 
   return app
